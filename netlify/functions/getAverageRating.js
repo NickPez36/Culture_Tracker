@@ -1,43 +1,47 @@
-// netlify/functions/getAverageRating.js
-const {
-  ensureCsv, parseCsv, toSydneyYMD, getFile
-} = require("./_shared/github");
+const fetch = require("node-fetch");
 
 exports.handler = async () => {
   try {
-    await ensureCsv();
-    const current = await getFile();
-    const rows = parseCsv(current.content);
+    const token = process.env.GITHUB_TOKEN;
+    const repo = process.env.GITHUB_REPO;
+    const csvPath = process.env.CSV_PATH || "data/data.csv";
 
-    // Today in Sydney, last 7-day window (today and previous 6 days)
-    const todayYMD = toSydneyYMD();
-    const [Y,M,D] = todayYMD.split("-").map(Number);
-    const today = new Date(Date.UTC(Y, M-1, D)); // normalize
-    const start = new Date(today);
-    start.setUTCDate(today.getUTCDate() - 6);
+    if (!token || !repo) {
+      return { statusCode: 500, body: JSON.stringify({ error: "GitHub token or repo not configured" }) };
+    }
 
-    const within = rows.filter(r => {
-      const [y,m,d] = r.date.split("-").map(Number);
-      const dt = new Date(Date.UTC(y, m-1, d));
-      return dt >= start && dt <= today;
+    // Get CSV
+    const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${csvPath}`, {
+      headers: { Authorization: `token ${token}`, Accept: "application/vnd.github.v3.raw" }
     });
 
-    const count = within.length;
-    const average = count ? within.reduce((s, r) => s + Number(r.rating || 0), 0) / count : 0;
+    if (!getRes.ok) {
+      const errText = await getRes.text();
+      console.error("Failed to fetch CSV:", errText);
+      return { statusCode: 500, body: JSON.stringify({ error: "Could not read CSV from GitHub" }) };
+    }
 
-    return {
-      statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: JSON.stringify({ average, count, from: start.toISOString().slice(0,10), to: todayYMD })
-    };
+    const csvData = await getRes.text();
+    const lines = csvData.trim().split("\n").slice(1); // remove header
+    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+    const ratings = lines
+      .map(line => {
+        const [date, , rating] = line.split(",");
+        return { date: new Date(date), rating: Number(rating) };
+      })
+      .filter(row => row.date.getTime() >= oneWeekAgo)
+      .map(row => row.rating);
+
+    if (!ratings.length) {
+      return { statusCode: 200, body: JSON.stringify({ average: null, message: "No data for the last week" }) };
+    }
+
+    const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    return { statusCode: 200, body: JSON.stringify({ average: avg.toFixed(2) }) };
+
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: err.message || "Internal error" })
-    };
+    console.error("Error in getAverageRating:", err);
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };
