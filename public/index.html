@@ -1,47 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Culture Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="script.js" defer></script>
-</head>
-<body>
-  <div class="container">
-    <h1>How good is the team culture today?</h1>
+<select onchange="selectName(this.value)">
+  <option value="">Select your name</option>
+  <option value="Nick Perry">Nick Perry</option>
+  <option value="Sara Latham">Sara Latham</option>
+  <option value="Julien Billaut">Julien Billaut</option>
+  <option value="Christian Fabris">Christian Fabris</option>
+  <option value="Titouan Dupras">Titouan Dupras</option>
+</select>
 
-    <!-- Name dropdown -->
-    <label for="name">Select your name:</label>
-    <select id="name" onchange="checkFormCompletion()">
-      <option value="">-- Choose --</option>
-      <option value="Nick Perry">Nick Perry</option>
-      <option value="Sara Latham">Sara Latham</option>
-      <option value="Julien Billaut">Julien Billaut</option>
-      <option value="Christian Fabris">Christian Fabris</option>
-      <option value="Titouan Dupras">Titouan Dupras</option>
-    </select>
+<div>
+  <button onclick="selectRating(1)">😡</button>
+  <button onclick="selectRating(2)">🙁</button>
+  <button onclick="selectRating(3)">😐</button>
+  <button onclick="selectRating(4)">🙂</button>
+  <button onclick="selectRating(5)">😁</button>
+</div>
 
-    <!-- Rating buttons -->
-    <div id="ratings">
-      <button class="rating-btn" onclick="selectRating(1)">😡</button>
-      <button class="rating-btn" onclick="selectRating(2)">🙁</button>
-      <button class="rating-btn" onclick="selectRating(3)">😐</button>
-      <button class="rating-btn" onclick="selectRating(4)">🙂</button>
-      <button class="rating-btn" onclick="selectRating(5)">😁</button>
-    </div>
+<button id="submitBtn" onclick="submitFeedback()" disabled>Submit</button>
 
-    <!-- Submit button -->
-    <button id="submit-btn" disabled onclick="submitFeedback()">Submit</button>
-
-    <!-- Feedback message -->
-    <p id="feedback-message" style="display:none;">Thank you for providing your feedback</p>
-
-    <!-- Average rating -->
-    <div class="average-container">
-      <button onclick="showAverage()">Show Average (Last 7 Days)</button>
-      <p id="average-output"></p>
-    </div>
-  </div>
-</body>
-</html>
+<button onclick="showAverage()">Show Weekly Average</button>
