@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Culture Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <h1>How good is the team culture today?</h1>
+
+    <!-- Name dropdown -->
+    <label for="name">Select your name:</label>
+    <select id="name" onchange="checkFormReady()">
+      <option value="">-- Choose --</option>
+      <option value="Nick Perry">Nick Perry</option>
+      <option value="Sara Latham">Sara Latham</option>
+      <option value="Julien Billaut">Julien Billaut</option>
+      <option value="Christian Fabris">Christian Fabris</option>
+      <option value="Titouan Dupras">Titouan Dupras</option>
+    </select>
+
+    <!-- Rating buttons -->
+    <div id="ratings">
+      <button onclick="selectRating(1)">😡</button>
+      <button onclick="selectRating(2)">🙁</button>
+      <button onclick="selectRating(3)">😐</button>
+      <button onclick="selectRating(4)">🙂</button>
+      <button onclick="selectRating(5)">😁</button>
+    </div>
+
+    <!-- Submit button -->
+    <button id="submit-btn" onclick="submitSelection()" disabled>Submit Feedback</button>
+
+    <!-- Feedback message -->
+    <p id="feedback-message" class="hidden">Thank you for providing your feedback</p>
+
+    <!-- Average rating -->
+    <div class="average-container">
+      <button onclick="showAverage()">Show Average (Last 7 Days)</button>
+      <p id="average-output"></p>
+    </div>
+  </div>
+</body>
+</html>
