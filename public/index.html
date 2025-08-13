@@ -1,20 +1,172 @@
-<select onchange="selectName(this.value)">
-  <option value="">Select your name</option>
-  <option value="Nick Perry">Nick Perry</option>
-  <option value="Sara Latham">Sara Latham</option>
-  <option value="Julien Billaut">Julien Billaut</option>
-  <option value="Christian Fabris">Christian Fabris</option>
-  <option value="Titouan Dupras">Titouan Dupras</option>
-</select>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Culture Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    select, button {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    select:focus, button:focus {
+      outline: none;
+      border-color: #007BFF;
+    }
+    .faces {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .faces button {
+      font-size: 2rem;
+      background: white;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border 0.2s ease;
+    }
+    .faces button.selected {
+      border-color: #007BFF;
+    }
+    #submitBtn {
+      background: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+    #submitBtn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #averageBtn {
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>How good is the team culture today?</h1>
 
-<div>
-  <button onclick="selectRating(1)">😡</button>
-  <button onclick="selectRating(2)">🙁</button>
-  <button onclick="selectRating(3)">😐</button>
-  <button onclick="selectRating(4)">🙂</button>
-  <button onclick="selectRating(5)">😁</button>
-</div>
+  <select onchange="selectName(this.value)">
+    <option value="">Select your name</option>
+    <option value="Nick Perry">Nick Perry</option>
+    <option value="Sara Latham">Sara Latham</option>
+    <option value="Julien Billaut">Julien Billaut</option>
+    <option value="Christian Fabris">Christian Fabris</option>
+    <option value="Titouan Dupras">Titouan Dupras</option>
+  </select>
 
-<button id="submitBtn" onclick="submitFeedback()" disabled>Submit</button>
+  <div class="faces">
+    <button onclick="selectRating(1)">😡</button>
+    <button onclick="selectRating(2)">🙁</button>
+    <button onclick="selectRating(3)">😐</button>
+    <button onclick="selectRating(4)">🙂</button>
+    <button onclick="selectRating(5)">😁</button>
+  </div>
 
-<button onclick="showAverage()">Show Weekly Average</button>
+  <button id="submitBtn" onclick="submitFeedback()" disabled>Submit</button>
+  <button id="averageBtn" onclick="showAverage()">Show Weekly Average</button>
+
+  <div id="message" class="message"></div>
+
+  <script>
+    let selectedRating = null;
+    let selectedName = "";
+
+    function selectName(name) {
+      selectedName = name;
+      checkSubmitEnabled();
+    }
+
+    function selectRating(rating) {
+      selectedRating = rating;
+      document.querySelectorAll('.faces button').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.faces button')[rating - 1].classList.add('selected');
+      checkSubmitEnabled();
+    }
+
+    function checkSubmitEnabled() {
+      document.getElementById("submitBtn").disabled = !(selectedName && selectedRating);
+    }
+
+    async function submitFeedback() {
+      try {
+        const res = await fetch("/api/submitFeedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: selectedName, rating: selectedRating })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setMessage(`Error: ${data.error || "Unknown error"}`, true);
+          return;
+        }
+
+        setMessage(data.message || "Thank you for your feedback!");
+        resetForm();
+
+      } catch (err) {
+        setMessage(`Error: ${err.message}`, true);
+      }
+    }
+
+    function resetForm() {
+      selectedName = "";
+      selectedRating = null;
+      document.querySelector("select").value = "";
+      document.querySelectorAll('.faces button').forEach(btn => btn.classList.remove('selected'));
+      document.getElementById("submitBtn").disabled = true;
+    }
+
+    async function showAverage() {
+      try {
+        const res = await fetch("/api/getAverageRating");
+        const data = await res.json();
+
+        if (!res.ok) {
+          setMessage(`Error: ${data.error || "Unknown error"}`, true);
+          return;
+        }
+
+        if (data.average) {
+          setMessage(`Average rating for the last week: ${data.average}`);
+        } else {
+          setMessage(data.message || "No data available");
+        }
+      } catch (err) {
+        setMessage(`Error: ${err.message}`, true);
+      }
+    }
+
+    function setMessage(msg, isError = false) {
+      const msgDiv = document.getElementById("message");
+      msgDiv.textContent = msg;
+      msgDiv.style.color = isError ? "red" : "green";
+      if (!isError) {
+        setTimeout(() => { msgDiv.textContent = ""; }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>
