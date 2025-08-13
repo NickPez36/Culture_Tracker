@@ -13,7 +13,7 @@
 
     <!-- Name dropdown -->
     <label for="name">Select your name:</label>
-    <select id="name" onchange="checkFormReady()">
+    <select id="name" onchange="checkFormCompletion()">
       <option value="">-- Choose --</option>
       <option value="Nick Perry">Nick Perry</option>
       <option value="Sara Latham">Sara Latham</option>
@@ -24,18 +24,18 @@
 
     <!-- Rating buttons -->
     <div id="ratings">
-      <button onclick="selectRating(1)">😡</button>
-      <button onclick="selectRating(2)">🙁</button>
-      <button onclick="selectRating(3)">😐</button>
-      <button onclick="selectRating(4)">🙂</button>
-      <button onclick="selectRating(5)">😁</button>
+      <button class="rating-btn" onclick="selectRating(1)">😡</button>
+      <button class="rating-btn" onclick="selectRating(2)">🙁</button>
+      <button class="rating-btn" onclick="selectRating(3)">😐</button>
+      <button class="rating-btn" onclick="selectRating(4)">🙂</button>
+      <button class="rating-btn" onclick="selectRating(5)">😁</button>
     </div>
 
     <!-- Submit button -->
-    <button id="submit-btn" onclick="submitSelection()" disabled>Submit Feedback</button>
+    <button id="submit-btn" disabled onclick="submitFeedback()">Submit</button>
 
     <!-- Feedback message -->
-    <p id="feedback-message" class="hidden">Thank you for providing your feedback</p>
+    <p id="feedback-message" style="display:none;">Thank you for providing your feedback</p>
 
     <!-- Average rating -->
     <div class="average-container">
