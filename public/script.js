@@ -1,60 +1,65 @@
 let selectedRating = null;
+let selectedName = "";
+
+function selectName(name) {
+  selectedName = name;
+  checkSubmitEnabled();
+}
 
 function selectRating(rating) {
   selectedRating = rating;
-
-  // Highlight selected rating
-  document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-  document.querySelectorAll('.rating-btn')[rating - 1].classList.add('selected');
-
-  checkFormCompletion();
+  checkSubmitEnabled();
 }
 
-function checkFormCompletion() {
-  const name = document.getElementById('name').value;
-  const submitBtn = document.getElementById('submit-btn');
-  submitBtn.disabled = !(name && selectedRating);
+function checkSubmitEnabled() {
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = !(selectedName && selectedRating);
 }
 
 async function submitFeedback() {
-  const name = document.getElementById('name').value;
-  const messageEl = document.getElementById('feedback-message');
-
   try {
-    const res = await fetch('/.netlify/functions/submitFeedback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, rating: selectedRating })
+    const res = await fetch("/api/submitFeedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: selectedName, rating: selectedRating })
     });
 
-    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
 
-    // Show thank-you message
-    messageEl.style.display = 'block';
-    setTimeout(() => {
-      messageEl.style.display = 'none';
-    }, 3000);
+    if (!res.ok) {
+      alert(`Error: ${data.error || "Unknown error"}`);
+      return;
+    }
 
-    // Reset form
-    document.getElementById('name').value = "";
-    selectedRating = null;
-    document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-    document.getElementById('submit-btn').disabled = true;
+    alert(data.message || "Thank you for your feedback!");
+    resetForm();
 
   } catch (err) {
     alert(`Error: ${err.message}`);
   }
 }
 
+function resetForm() {
+  selectedName = "";
+  selectedRating = null;
+  document.getElementById("submitBtn").disabled = true;
+}
+
 async function showAverage() {
-  const output = document.getElementById('average-output');
   try {
-    const res = await fetch('/.netlify/functions/getAverageRating');
-    if (!res.ok) throw new Error(await res.text());
-
+    const res = await fetch("/api/getAverageRating");
     const data = await res.json();
-    output.textContent = `Average rating (last 7 days): ${data.average.toFixed(2)}`;
 
+    if (!res.ok) {
+      alert(`Error: ${data.error || "Unknown error"}`);
+      return;
+    }
+
+    if (data.average) {
+      alert(`Average rating for the last week: ${data.average}`);
+    } else {
+      alert(data.message || "No data available");
+    }
   } catch (err) {
     alert(`Error: ${err.message}`);
   }
