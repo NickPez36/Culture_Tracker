@@ -1,0 +1,12 @@
+{
+  "name": "culture-tracker",
+  "private": true,
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "start": "netlify dev"
+  },
+  "dependencies": {}
+}

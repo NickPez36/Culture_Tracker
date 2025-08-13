@@ -1,0 +1,155 @@
+<!-- public/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Team Culture Tracker</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a; --fg: #e2e8f0; --muted:#94a3b8; --primary:#22c55e; --danger:#ef4444;
+      --card:#111827; --accent:#38bdf8; --border:#1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #0b1220, #0f172a 60%);
+      color: var(--fg); min-height: 100dvh; display: grid; place-items: center; padding: 24px;
+    }
+    .app {
+      width: 100%; max-width: 720px; background: linear-gradient(180deg, #0b1220, #0a0f1a);
+      border: 1px solid var(--border); border-radius: 16px; padding: 28px; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: .2px; }
+    p.sub { margin: 0 0 24px; color: var(--muted) }
+    .row { display: grid; gap: 12px; margin: 16px 0 24px; grid-template-columns: 1fr; }
+    label { font-size: 14px; color: var(--muted); }
+    select {
+      width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 10px; color: var(--fg);
+      background: var(--card); border: 1px solid var(--border); outline: none;
+    }
+    .faces { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 6px; }
+    .face {
+      display: grid; place-items: center; font-size: 28px; padding: 14px 0; border-radius: 12px; cursor: pointer;
+      border: 1px solid var(--border); background: #0b1424; transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      user-select: none;
+    }
+    .face:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .face[data-val="1"] { background: rgba(239, 68, 68, .1); }
+    .face[data-val="2"] { background: rgba(245, 158, 11, .1);}
+    .face[data-val="3"] { background: rgba(148, 163, 184, .1);}
+    .face[data-val="4"] { background: rgba(16, 185, 129, .08);}
+    .face[data-val="5"] { background: rgba(34, 197, 94, .12);}
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    button {
+      appearance: none; border: 1px solid var(--border); background: #0b1424; color: var(--fg);
+      padding: 12px 16px; border-radius: 10px; font-size: 15px; cursor: pointer;
+    }
+    button.primary { border-color: #14532d; background: #052e1d; }
+    .toast {
+      display: none; margin: 12px 0 0; padding: 12px 14px; border-radius: 10px;
+      background: #052e1d; border: 1px solid #14532d; color: #bbf7d0; font-size: 14px;
+    }
+    .toast.show { display: block; }
+    .error { background: #2a0b0b; border-color: #7f1d1d; color: #fecaca; }
+    .avg {
+      margin-left: auto; color: var(--muted); font-size: 14px; display: none;
+      padding: 10px 12px; border: 1px dashed var(--border); border-radius: 10px;
+    }
+    .avg.show { display: inline-flex; }
+    .footer { margin-top: 16px; color: var(--muted); font-size: 12px; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>How good is the team culture today?</h1>
+    <p class="sub">Pick your name, then tap a face to record your mood.</p>
+
+    <div class="row">
+      <label for="name">Your name</label>
+      <select id="name" aria-label="Name">
+        <option value="Nick Perry">Nick Perry</option>
+        <option value="Sara Latham">Sara Latham</option>
+        <option value="Julien Billaut">Julien Billaut</option>
+        <option value="Christian Fabris">Christian Fabris</option>
+        <option value="Titouan Dupras">Titouan Dupras</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Choose a face</label>
+      <div class="faces" id="faces">
+        <div class="face" data-val="1" title="Extremely bad">😫</div>
+        <div class="face" data-val="2" title="Bad">🙁</div>
+        <div class="face" data-val="3" title="Neutral">😐</div>
+        <div class="face" data-val="4" title="Good">🙂</div>
+        <div class="face" data-val="5" title="Extremely good">🤩</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="avgBtn" class="primary" type="button">Show last week’s average</button>
+      <span id="avgBadge" class="avg" aria-live="polite"></span>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div class="footer">Hosted on Netlify • Data saved to GitHub CSV</div>
+  </div>
+
+  <script>
+    const toast = document.getElementById('toast');
+    const faces = document.getElementById('faces');
+    const nameSel = document.getElementById('name');
+    const avgBtn = document.getElementById('avgBtn');
+    const avgBadge = document.getElementById('avgBadge');
+
+    function showToast(msg, isError=false) {
+      toast.textContent = msg;
+      toast.className = 'toast ' + (isError ? 'error' : 'show');
+      if (!isError) {
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+          // reset UI if needed
+        }, 3000);
+      }
+    }
+
+    faces.addEventListener('click', async (e) => {
+      const el = e.target.closest('.face');
+      if (!el) return;
+      const rating = Number(el.dataset.val);
+      const name = nameSel.value;
+      try {
+        const res = await fetch('/api/submitFeedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, rating })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed');
+        showToast('Thank you for providing your feedback!');
+      } catch (err) {
+        showToast(err.message || 'Something went wrong', true);
+      }
+    });
+
+    avgBtn.addEventListener('click', async () => {
+      avgBadge.classList.remove('show');
+      avgBadge.textContent = 'Loading…';
+      avgBadge.classList.add('show');
+      try {
+        const res = await fetch('/api/getAverageRating');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed');
+        avgBadge.textContent = data.count > 0
+          ? `Last 7 days average: ${data.average.toFixed(2)} (${data.count} responses)`
+          : 'No responses in the last 7 days';
+      } catch (err) {
+        avgBadge.textContent = 'Error: ' + (err.message || 'fetch failed');
+      }
+    });
+  </script>
+</body>
+</html>
