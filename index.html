@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-slate-100 text-slate-800">
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center mb-10">
@@ -24,51 +24,45 @@
 
         <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Submission Section -->
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-2xl font-bold mb-4">Submit Today's Vibe</h2>
-                <form id="culture-form">
-                    <div class="mb-4">
-                        <label for="user-select" class="block text-sm font-medium text-slate-700 mb-1">Who are you?</label>
-                        <select id="user-select" name="name" required class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">Select your name...</option>
-                            <option value="Nick Perry">Nick Perry</option>
-                            <option value="Sara Latham">Sara Latham</option>
-                            <option value="Julien Billaut">Julien Billaut</option>
-                            <option value="Myriam Fox">Myriam Fox</option>
-                            <option value="Tony Laven">Tony Laven</option>
-                        </select>
+            <div class="bg-white p-6 rounded-xl shadow-lg space-y-6">
+                <div id="submission-step-1">
+                    <h2 class="text-2xl font-bold mb-1">Step 1: Who are you?</h2>
+                    <p class="text-slate-500 mb-4">Select your name to begin.</p>
+                    <div id="name-buttons-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Name buttons will be dynamically inserted here -->
+                        <div class="text-center p-4 text-slate-500 col-span-full">Loading team members...</div>
                     </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-slate-700 mb-2">How's the culture today?</label>
+                </div>
+                
+                <div id="submission-step-2" class="hidden">
+                    <h2 class="text-2xl font-bold mb-4">Step 2: How's the culture?</h2>
+                    <form id="culture-form" class="space-y-6">
                         <div id="rating-options" class="flex flex-wrap gap-2">
-                            <!-- Radio buttons will be styled as labels -->
                             <input type="radio" id="rating-1" name="rating" value="1" class="hidden peer" required>
-                            <label for="rating-1" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-500 hover:bg-red-100 transition-colors">Poor Culture</label>
+                            <label for="rating-1" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-600 hover:bg-red-50 transition-colors">Poor Culture</label>
                             
                             <input type="radio" id="rating-2" name="rating" value="2" class="hidden peer">
-                            <label for="rating-2" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 hover:bg-orange-100 transition-colors">Below Average</label>
+                            <label for="rating-2" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-600 hover:bg-orange-50 transition-colors">Below Average</label>
 
                             <input type="radio" id="rating-3" name="rating" value="3" class="hidden peer">
-                            <label for="rating-3" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:border-yellow-500 hover:bg-yellow-100 transition-colors">Average</label>
+                            <label for="rating-3" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:border-yellow-600 hover:bg-yellow-50 transition-colors">Average</label>
 
                             <input type="radio" id="rating-4" name="rating" value="4" class="hidden peer">
-                            <label for="rating-4" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 hover:bg-green-100 transition-colors">Above Average</label>
+                            <label for="rating-4" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-600 hover:bg-green-50 transition-colors">Above Average</label>
 
                             <input type="radio" id="rating-5" name="rating" value="5" class="hidden peer">
-                            <label for="rating-5" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-indigo-500 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-indigo-100 transition-colors">Great Culture</label>
+                            <label for="rating-5" class="w-full text-center p-3 rounded-md border cursor-pointer peer-checked:bg-indigo-500 peer-checked:text-white peer-checked:border-indigo-600 hover:bg-indigo-50 transition-colors">Great Culture</label>
                         </div>
-                    </div>
-
-                    <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform duration-150 ease-in-out active:scale-95 disabled:bg-slate-400 disabled:cursor-not-allowed">
-                        Submit Response
-                    </button>
-                </form>
-                <div id="message-box" class="mt-4 text-center p-3 rounded-md text-sm"></div>
+                        <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform duration-150 ease-in-out active:scale-95 disabled:bg-slate-400 disabled:cursor-not-allowed">
+                            Submit for <span id="submit-button-name" class="font-bold"></span>
+                        </button>
+                    </form>
+                </div>
+                 <div id="message-box" class="mt-4 text-center p-3 rounded-md text-sm"></div>
             </div>
 
             <!-- Dashboard Section -->
-            <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
                 <h2 class="text-2xl font-bold mb-4">7-Day Dashboard</h2>
                 <div id="loading-state" class="text-center py-10">
                     <p class="text-slate-500">Loading data...</p>
@@ -88,52 +82,102 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM ELEMENTS ---
+            const nameButtonsContainer = document.getElementById('name-buttons-container');
+            const submissionStep2 = document.getElementById('submission-step-2');
             const form = document.getElementById('culture-form');
             const submitBtn = document.getElementById('submit-btn');
+            const submitButtonName = document.getElementById('submit-button-name');
             const messageBox = document.getElementById('message-box');
             const avgTile = document.getElementById('avg-tile');
             const chartCanvas = document.getElementById('daily-chart');
             const loadingState = document.getElementById('loading-state');
             const dashboardContent = document.getElementById('dashboard-content');
+            
+            // --- STATE ---
             let cultureChart;
+            let selectedName = null;
 
-            const ratingMap = {
-                1: 'Poor Culture',
-                2: 'Below Average',
-                3: 'Average',
-                4: 'Above Average',
-                5: 'Great Culture'
+            const ratingMap = { 1: 'Poor', 2: 'Below Avg', 3: 'Average', 4: 'Above Avg', 5: 'Great' };
+            const roleColors = {
+                'Staff': 'bg-blue-500 hover:bg-blue-600 text-white',
+                'Athlete': 'bg-teal-500 hover:bg-teal-600 text-white',
+                'default': 'bg-gray-500 hover:bg-gray-600 text-white'
             };
 
-            // --- DATA FETCHING AND DISPLAY ---
+            // --- FUNCTIONS ---
             async function fetchDataAndDisplay() {
                 loadingState.style.display = 'block';
                 dashboardContent.style.display = 'none';
                 
                 try {
                     const response = await fetch('/.netlify/functions/get-data');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
                     const data = await response.json();
+                    renderNameButtons(data.teamMembers, data.submittedToday);
                     displayMetrics(data);
                     
                 } catch (error) {
                     console.error('Error fetching data:', error);
                     avgTile.textContent = 'Error';
                     loadingState.innerHTML = '<p class="text-red-500">Could not load data.</p>';
+                    nameButtonsContainer.innerHTML = '<p class="text-red-500 col-span-full">Could not load team members.</p>';
                 } finally {
                     loadingState.style.display = 'none';
                     dashboardContent.style.display = 'block';
                 }
             }
 
+            function renderNameButtons(teamMembers, submittedToday) {
+                nameButtonsContainer.innerHTML = ''; // Clear loading message
+                if (!teamMembers || teamMembers.length === 0) {
+                    nameButtonsContainer.innerHTML = '<p class="text-slate-500 col-span-full">No team members found.</p>';
+                    return;
+                }
+
+                teamMembers.forEach(member => {
+                    const button = document.createElement('button');
+                    button.textContent = member.PersonName;
+                    button.dataset.name = member.PersonName;
+                    const hasSubmitted = submittedToday.includes(member.PersonName);
+                    
+                    const colorClass = roleColors[member.Role] || roleColors.default;
+                    button.className = `p-3 rounded-md font-semibold transition-all duration-150 ease-in-out ${colorClass}`;
+
+                    if (hasSubmitted) {
+                        button.disabled = true;
+                        button.classList.add('opacity-50', 'cursor-not-allowed');
+                        button.textContent += ' (Submitted)';
+                    } else {
+                        button.addEventListener('click', () => handleNameSelection(member.PersonName));
+                    }
+                    nameButtonsContainer.appendChild(button);
+                });
+            }
+
+            function handleNameSelection(name) {
+                selectedName = name;
+                
+                // Update button visual states
+                Array.from(nameButtonsContainer.children).forEach(btn => {
+                    if (btn.dataset.name === name) {
+                        btn.classList.add('ring-4', 'ring-indigo-300');
+                    } else {
+                        btn.classList.remove('ring-4', 'ring-indigo-300');
+                    }
+                });
+
+                // Show step 2
+                submissionStep2.classList.remove('hidden');
+                submitButtonName.textContent = name;
+                form.reset(); // Reset rating selection
+            }
+
             function displayMetrics(data) {
-                // Display 7-day average tile
                 const overallAvg = data.sevenDayAverage;
                 avgTile.textContent = overallAvg > 0 ? overallAvg.toFixed(2) : 'N/A';
 
-                // Prepare chart data
                 const labels = data.dailyAverages.map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }));
                 const chartData = data.dailyAverages.map(d => d.average);
 
@@ -146,7 +190,7 @@
                             data: chartData,
                             fill: true,
                             borderColor: 'rgb(79, 70, 229)',
-                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
                             tension: 0.3,
                             pointBackgroundColor: 'rgb(79, 70, 229)',
                             pointRadius: 5,
@@ -154,80 +198,81 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 5,
-                                ticks: {
-                                    stepSize: 1,
-                                    callback: function(value) {
-                                        return ratingMap[value] || '';
-                                    }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
+                        scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1, callback: (v) => ratingMap[v] || '' } } },
+                        plugins: { legend: { display: false } }
                     }
                 };
 
-                if (cultureChart) {
-                    cultureChart.destroy();
-                }
+                if (cultureChart) cultureChart.destroy();
                 cultureChart = new Chart(chartCanvas, chartConfig);
             }
 
-            // --- FORM SUBMISSION ---
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if (!selectedName) {
+                    showMessage('Please select your name first.', 'error');
+                    return;
+                }
+
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
-                messageBox.textContent = '';
-                messageBox.className = 'mt-4 text-center p-3 rounded-md text-sm'; // Reset classes
-
-                const formData = new FormData(form);
-                const submission = {
-                    name: formData.get('name'),
-                    rating: parseInt(formData.get('rating'), 10)
-                };
+                
+                const rating = new FormData(form).get('rating');
+                if (!rating) {
+                    showMessage('Please select a culture rating.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `Submit for <span id="submit-button-name" class="font-bold">${selectedName}</span>`;
+                    return;
+                }
 
                 try {
                     const response = await fetch('/.netlify/functions/submit-rating', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(submission)
+                        body: JSON.stringify({ name: selectedName, rating: parseInt(rating, 10) })
                     });
 
                     const result = await response.json();
 
                     if (response.ok) {
-                        messageBox.textContent = 'Thank you for your submission!';
-                        messageBox.classList.add('bg-green-100', 'text-green-800');
-                        form.reset();
-                        // Refresh data after a short delay
+                        showMessage('Thank you for your submission!', 'success');
+                        submissionStep2.classList.add('hidden');
+                        // Visually disable the button immediately
+                        const submittedButton = Array.from(nameButtonsContainer.children).find(btn => btn.dataset.name === selectedName);
+                        if (submittedButton) {
+                            submittedButton.disabled = true;
+                            submittedButton.classList.add('opacity-50', 'cursor-not-allowed');
+                            submittedButton.textContent += ' (Submitted)';
+                            submittedButton.classList.remove('ring-4', 'ring-indigo-300');
+                        }
                         setTimeout(fetchDataAndDisplay, 1500);
                     } else {
-                        // Handle specific errors from the backend
-                        messageBox.textContent = result.message || 'An error occurred.';
-                        messageBox.classList.add('bg-red-100', 'text-red-800');
+                        showMessage(result.message || 'An error occurred.', 'error');
                     }
                 } catch (error) {
                     console.error('Submission error:', error);
-                    messageBox.textContent = 'A network error occurred. Please try again.';
-                    messageBox.classList.add('bg-red-100', 'text-red-800');
+                    showMessage('A network error occurred. Please try again.', 'error');
                 } finally {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Response';
+                    submitBtn.innerHTML = `Submit for <span id="submit-button-name" class="font-bold">${selectedName}</span>`;
                 }
             });
 
-            // Initial data load
+            function showMessage(text, type) {
+                messageBox.textContent = text;
+                messageBox.className = 'mt-4 text-center p-3 rounded-md text-sm'; // Reset
+                if (type === 'success') {
+                    messageBox.classList.add('bg-green-100', 'text-green-800');
+                } else if (type === 'error') {
+                    messageBox.classList.add('bg-red-100', 'text-red-800');
+                }
+                setTimeout(() => messageBox.textContent = '', 4000);
+            }
+
+            // --- INITIAL LOAD ---
             fetchDataAndDisplay();
         });
     </script>
 </body>
 </html>
+
