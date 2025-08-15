@@ -1,53 +1,78 @@
 // netlify/functions/get-data.js
-// This function reads the data.csv file from your GitHub repo.
+// This function reads BOTH team_roles.csv and data.csv from your GitHub repo.
 
 const fetch = require('node-fetch');
 
-// Helper function to parse CSV data
+// Helper function to parse CSV data safely
 const parseCSV = (csv) => {
+    if (!csv || typeof csv !== 'string') return [];
     const lines = csv.trim().split('\n');
     if (lines.length < 2) return []; // Return empty if only headers or empty
-    const headers = lines[0].split(',');
+    const headers = lines[0].split(',').map(h => h.trim());
     return lines.slice(1).map(line => {
         const values = line.split(',');
         return headers.reduce((obj, header, index) => {
-            obj[header.trim()] = values[index] ? values[index].trim() : '';
+            obj[header] = values[index] ? values[index].trim() : '';
             return obj;
         }, {});
     });
 };
 
+// Helper to check if two dates are on the same day (in UTC)
+const isSameDay = (date1, date2) => {
+    return date1.getUTCFullYear() === date2.getUTCFullYear() &&
+           date1.getUTCMonth() === date2.getUTCMonth() &&
+           date1.getUTCDate() === date2.getUTCDate();
+};
+
+
 exports.handler = async (event, context) => {
     const { GITHUB_TOKEN, GITHUB_USER, GITHUB_REPO } = process.env;
-    const filePath = 'data/data.csv';
-    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filePath}`;
+    const baseApiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+
+    const fetchOptions = {
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3.raw'
+        }
+    };
 
     try {
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3.raw' // Get raw content directly
-            }
-        });
+        // Fetch both files in parallel for efficiency
+        const [rolesResponse, dataResponse] = await Promise.all([
+            fetch(`${baseApiUrl}data/team_roles.csv`, fetchOptions),
+            fetch(`${baseApiUrl}data/data.csv`, fetchOptions)
+        ]);
 
-        if (!response.ok) {
-            return {
-                statusCode: response.status,
-                body: JSON.stringify({ message: `Error fetching file: ${response.statusText}` })
-            };
+        if (!rolesResponse.ok) {
+             return { statusCode: rolesResponse.status, body: JSON.stringify({ message: `Error fetching team_roles.csv: ${rolesResponse.statusText}` }) };
+        }
+        if (!dataResponse.ok) {
+             return { statusCode: dataResponse.status, body: JSON.stringify({ message: `Error fetching data.csv: ${dataResponse.statusText}` }) };
         }
 
-        const csvData = await response.text();
-        const records = parseCSV(csvData);
+        const [rolesCsv, dataCsv] = await Promise.all([
+            rolesResponse.text(),
+            dataResponse.text()
+        ]);
 
         // --- DATA PROCESSING ---
+        const teamMembers = parseCSV(rolesCsv);
+        const allRecords = parseCSV(dataCsv);
+
+        // Find who has submitted today
+        const today = new Date();
+        const submittedToday = allRecords
+            .filter(r => r.timestamp && isSameDay(new Date(r.timestamp), today))
+            .map(r => r.name);
+
+        // Calculate 7-day metrics
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         sevenDaysAgo.setHours(0, 0, 0, 0);
 
-        const recentRecords = records.filter(r => r.timestamp && new Date(r.timestamp) >= sevenDaysAgo);
+        const recentRecords = allRecords.filter(r => r.timestamp && new Date(r.timestamp) >= sevenDaysAgo);
 
-        // Calculate overall 7-day average
         const totalRating = recentRecords.reduce((sum, record) => sum + parseInt(record.rating, 10), 0);
         const sevenDayAverage = recentRecords.length > 0 ? totalRating / recentRecords.length : 0;
 
@@ -75,11 +100,13 @@ exports.handler = async (event, context) => {
                 date: day.date,
                 average: day.count > 0 ? day.total / day.count : 0
             }))
-            .sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort from oldest to newest
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
         return {
             statusCode: 200,
             body: JSON.stringify({
+                teamMembers,
+                submittedToday,
                 sevenDayAverage,
                 dailyAverages
             })
