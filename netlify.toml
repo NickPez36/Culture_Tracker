@@ -1,8 +1,6 @@
-[build]
-  publish = "public"
-  functions = "netlify/functions"
+# netlify.toml
+# This file tells Netlify where to find your serverless functions.
+# It should be in the root of your repository.
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[functions]
+  directory = "netlify/functions/"
