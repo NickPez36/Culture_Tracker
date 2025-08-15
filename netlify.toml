@@ -1,6 +1,10 @@
 # netlify.toml
-# This file tells Netlify where to find your serverless functions.
-# It should be in the root of your repository.
+# This file tells Netlify where to find your serverless functions
+# and which folder to publish for the live site.
+
+[build]
+  # This tells Netlify that your website files (index.html) are in the root directory.
+  publish = "."
 
 [functions]
   directory = "netlify/functions/"
