@@ -1,5 +1,5 @@
 // netlify/functions/get-data.js
-// This function reads BOTH team_roles.csv and data.csv from your GitHub repo.
+// This function reads both team_roles.csv and data.csv, and groups team members by role.
 
 const fetch = require('node-fetch');
 
@@ -60,6 +60,16 @@ exports.handler = async (event, context) => {
         const teamMembers = parseCSV(rolesCsv);
         const allRecords = parseCSV(dataCsv);
 
+        // Group team members by role
+        const groupedTeamMembers = teamMembers.reduce((acc, member) => {
+            const role = member.Role || 'Unassigned';
+            if (!acc[role]) {
+                acc[role] = [];
+            }
+            acc[role].push(member);
+            return acc;
+        }, {});
+
         // Find who has submitted today
         const today = new Date();
         const submittedToday = allRecords
@@ -105,7 +115,7 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 200,
             body: JSON.stringify({
-                teamMembers,
+                teamMembers: groupedTeamMembers, // Send the grouped object instead of the flat array
                 submittedToday,
                 sevenDayAverage,
                 dailyAverages
