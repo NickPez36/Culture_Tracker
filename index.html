@@ -138,7 +138,9 @@
                 const password = loginForm.password.value.toLowerCase();
                 loginError.textContent = '';
 
-                if ((username === 'athlete' && password === 'athlete') || (username === 'admin' && password === 'admin')) {
+                if ((username === 'athlete' && password === 'athlete') ||
+                    (username === 'staff' && password === 'staff') ||
+                    (username === 'admin' && password === 'admin')) {
                     currentUserRole = username;
                     loginView.classList.add('hidden');
                     appView.classList.remove('hidden');
@@ -157,16 +159,16 @@
 
             // --- INITIALIZATION ---
             function initializeApp() {
+                // Show admin controls ONLY for admin
                 if (currentUserRole === 'admin') {
                     adminControls.classList.remove('hidden');
                 } else {
                     adminControls.classList.add('hidden');
                 }
-                if (currentUserRole === 'admin') {
-                    submissionContainer.classList.add('hidden');
-                } else {
-                    submissionContainer.classList.remove('hidden');
-                }
+                
+                // Show submission container for EVERYONE who is logged in
+                submissionContainer.classList.remove('hidden');
+                
                 fetchDataAndDisplay();
             }
 
@@ -179,10 +181,10 @@
                     if (!response.ok) throw new Error('Failed to fetch data');
                     appData = await response.json();
                     
-                    if (currentUserRole === 'athlete') {
-                        renderNameButtons();
-                        renderRatingButtons();
-                    }
+                    // All logged in users can submit, so render the buttons
+                    renderNameButtons();
+                    renderRatingButtons();
+                    
                     renderDashboard();
                 } catch (error) {
                     console.error('Error fetching data:', error);
