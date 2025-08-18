@@ -7,74 +7,90 @@
     <title>Team Culture Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-slate-900 text-slate-300">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-white">Team Culture Tracker</h1>
-            <p class="text-slate-400 mt-2">Daily pulse check for our team's well-being.</p>
+    <!-- Login View -->
+    <div id="login-view" class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md p-8 space-y-6 bg-slate-800/50 rounded-xl shadow-lg border border-slate-700">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-white">Culture Tracker Login</h1>
+                <p class="text-slate-400 mt-2">Please sign in to continue</p>
+            </div>
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-slate-400">Username</label>
+                    <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-400">Password</label>
+                    <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-md text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <button type="submit" class="w-full py-3 px-4 bg-indigo-600 text-white font-bold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500">Login</button>
+            </form>
+            <p id="login-error" class="text-red-400 text-center text-sm"></p>
+        </div>
+    </div>
+
+    <!-- Main App View -->
+    <div id="app-view" class="hidden container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="flex justify-between items-center mb-10">
+            <div class="text-left">
+                 <h1 class="text-4xl font-bold text-white">Team Culture Tracker</h1>
+                 <p class="text-slate-400 mt-2">Daily pulse check for our team's well-being.</p>
+            </div>
+            <button id="logout-btn" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Logout</button>
         </header>
+
+        <!-- Admin Controls -->
+        <div id="admin-controls" class="hidden mb-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+            <h3 class="text-lg font-semibold text-white mb-3">Admin View</h3>
+            <div id="view-toggle-buttons" class="flex flex-wrap gap-2">
+                <button data-view="Team" class="admin-view-btn flex-1 bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md">Team Culture</button>
+                <button data-view="Athlete" class="admin-view-btn flex-1 bg-slate-600 text-white font-semibold py-2 px-4 rounded-md">Athlete Culture</button>
+                <button data-view="Staff" class="admin-view-btn flex-1 bg-slate-600 text-white font-semibold py-2 px-4 rounded-md">Staff Culture</button>
+            </div>
+        </div>
 
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Submission Section -->
-            <div class="bg-slate-800/50 p-6 rounded-xl shadow-lg space-y-6 border border-slate-700">
+            <div id="submission-container" class="bg-slate-800/50 p-6 rounded-xl shadow-lg space-y-6 border border-slate-700">
+                <!-- Step 1: Name Selection -->
                 <div id="submission-step-1">
-                    <h2 class="text-2xl font-bold mb-1 text-white">Step 1: Who are you?</h2>
-                    <p class="text-slate-400 mb-4">Select your name to begin.</p>
-                    <div id="name-buttons-container" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-                        <!-- Name buttons will be dynamically inserted here -->
-                        <div class="text-center p-4 text-slate-500 col-span-full">Loading team members...</div>
-                    </div>
+                    <h2 class="text-2xl font-bold text-white">Step 1: Who are you?</h2>
+                    <div id="name-buttons-container" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mt-4"></div>
                 </div>
-                
+                <!-- Step 2: Rating Selection -->
                 <div id="submission-step-2" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4 text-white">Step 2: How's the culture?</h2>
-                    <form id="culture-form" class="space-y-6">
-                        <div id="rating-options" class="grid grid-cols-1 gap-2">
-                            <input type="radio" id="rating-1" name="rating" value="1" class="hidden peer" required>
-                            <label for="rating-1" class="w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-500 hover:bg-slate-700 transition-colors">Poor Culture</label>
-                            
-                            <input type="radio" id="rating-2" name="rating" value="2" class="hidden peer">
-                            <label for="rating-2" class="w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 hover:bg-slate-700 transition-colors">Below Average</label>
-
-                            <input type="radio" id="rating-3" name="rating" value="3" class="hidden peer">
-                            <label for="rating-3" class="w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:border-yellow-500 hover:bg-slate-700 transition-colors">Average</label>
-
-                            <input type="radio" id="rating-4" name="rating" value="4" class="hidden peer">
-                            <label for="rating-4" class="w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 hover:bg-slate-700 transition-colors">Above Average</label>
-
-                            <input type="radio" id="rating-5" name="rating" value="5" class="hidden peer">
-                            <label for="rating-5" class="w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer peer-checked:bg-indigo-500 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-700 transition-colors">Great Culture</label>
-                        </div>
-                        <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-transform duration-150 ease-in-out active:scale-95 disabled:bg-slate-600 disabled:cursor-not-allowed">
-                            Submit for <span id="submit-button-name" class="font-bold"></span>
-                        </button>
-                    </form>
+                    <h2 class="text-2xl font-bold text-white">Step 2: How's the culture?</h2>
+                    <div id="rating-options" class="grid grid-cols-1 gap-2 mt-4"></div>
                 </div>
-                 <div id="message-box" class="mt-4 text-center p-3 rounded-md text-sm"></div>
+                <!-- Step 3: Reason Selection -->
+                <div id="submission-step-3" class="hidden">
+                    <h2 class="text-2xl font-bold text-white">Step 3: What's the reason?</h2>
+                    <div id="reason-buttons-container" class="grid grid-cols-1 gap-2 mt-4"></div>
+                </div>
+                <!-- Submission Form (hidden) -->
+                <form id="culture-form" class="hidden">
+                    <button type="submit" id="submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700">Submit Response</button>
+                </form>
+                <div id="message-box" class="text-center p-3 rounded-md text-sm"></div>
             </div>
 
             <!-- Dashboard Section -->
             <div class="bg-slate-800/50 p-6 rounded-xl shadow-lg border border-slate-700">
-                <h2 class="text-2xl font-bold mb-4 text-white">7-Day Dashboard</h2>
-                <div id="loading-state" class="text-center py-10">
-                    <p class="text-slate-400">Loading data...</p>
-                </div>
+                <h2 id="dashboard-title" class="text-2xl font-bold text-white mb-4">7-Day Dashboard</h2>
+                <div id="loading-state" class="text-center py-10"><p class="text-slate-400">Loading data...</p></div>
                 <div id="dashboard-content" class="hidden">
                     <div class="bg-slate-900/70 p-6 rounded-lg text-center mb-6 border border-slate-700">
                         <p class="text-sm font-medium text-slate-400 uppercase tracking-wider">7-Day Average Score</p>
                         <p id="avg-tile" class="text-5xl font-bold text-indigo-400 mt-2">...</p>
                     </div>
-                    <div>
-                        <canvas id="daily-chart"></canvas>
-                    </div>
+                    <div><canvas id="daily-chart"></canvas></div>
                 </div>
             </div>
         </main>
@@ -82,82 +98,151 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE MANAGEMENT ---
+            let appData = {};
+            let selected = { name: null, rating: null, reason: null };
+            let currentUserRole = null;
+            let currentAdminView = 'Team';
+            let cultureChart;
+
             // --- DOM ELEMENTS ---
+            const loginView = document.getElementById('login-view');
+            const appView = document.getElementById('app-view');
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+            const logoutBtn = document.getElementById('logout-btn');
+            const adminControls = document.getElementById('admin-controls');
+            const viewToggleButtons = document.getElementById('view-toggle-buttons');
+            const submissionContainer = document.getElementById('submission-container');
             const nameButtonsContainer = document.getElementById('name-buttons-container');
-            const submissionStep2 = document.getElementById('submission-step-2');
-            const form = document.getElementById('culture-form');
-            const submitBtn = document.getElementById('submit-btn');
-            const submitButtonName = document.getElementById('submit-button-name');
+            const step2 = document.getElementById('submission-step-2');
+            const ratingOptions = document.getElementById('rating-options');
+            const step3 = document.getElementById('submission-step-3');
+            const reasonButtonsContainer = document.getElementById('reason-buttons-container');
+            const cultureForm = document.getElementById('culture-form');
             const messageBox = document.getElementById('message-box');
+            const dashboardTitle = document.getElementById('dashboard-title');
             const avgTile = document.getElementById('avg-tile');
             const chartCanvas = document.getElementById('daily-chart');
             const loadingState = document.getElementById('loading-state');
             const dashboardContent = document.getElementById('dashboard-content');
-            
-            // --- STATE ---
-            let cultureChart;
-            let selectedName = null;
 
-            const ratingMap = { 1: 'Poor', 2: 'Below Avg', 3: 'Average', 4: 'Above Avg', 5: 'Great' };
-            const roleColors = {
-                'Staff': 'bg-blue-600 hover:bg-blue-700 text-white',
-                'Athlete': 'bg-teal-600 hover:bg-teal-700 text-white',
-                'default': 'bg-gray-600 hover:bg-gray-700 text-white'
-            };
+            // --- CONSTANTS ---
+            const RATING_MAP = { 1: 'Poor', 2: 'Below Avg', 3: 'Average', 4: 'Above Avg', 5: 'Great' };
+            const ROLE_COLORS = { 'Staff': 'bg-blue-600 hover:bg-blue-700', 'Athlete': 'bg-teal-600 hover:bg-teal-700' };
 
-            // --- FUNCTIONS ---
+            // --- LOGIN / LOGOUT ---
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = loginForm.username.value.toLowerCase();
+                const password = loginForm.password.value.toLowerCase();
+                loginError.textContent = '';
+
+                if ((username === 'athlete' && password === 'athlete') || (username === 'admin' && password === 'admin')) {
+                    currentUserRole = username;
+                    loginView.classList.add('hidden');
+                    appView.classList.remove('hidden');
+                    initializeApp();
+                } else {
+                    loginError.textContent = 'Invalid username or password.';
+                }
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                currentUserRole = null;
+                appView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+                loginForm.reset();
+            });
+
+            // --- INITIALIZATION ---
+            function initializeApp() {
+                if (currentUserRole === 'admin') {
+                    adminControls.classList.remove('hidden');
+                } else {
+                    adminControls.classList.add('hidden');
+                }
+                if (currentUserRole === 'admin') {
+                    submissionContainer.classList.add('hidden');
+                } else {
+                    submissionContainer.classList.remove('hidden');
+                }
+                fetchDataAndDisplay();
+            }
+
+            // --- DATA FETCHING & RENDERING ---
             async function fetchDataAndDisplay() {
                 loadingState.style.display = 'block';
                 dashboardContent.style.display = 'none';
-                
                 try {
                     const response = await fetch('/.netlify/functions/get-data');
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) throw new Error('Failed to fetch data');
+                    appData = await response.json();
                     
-                    const data = await response.json();
-                    renderNameButtons(data.teamMembers, data.submittedToday);
-                    displayMetrics(data);
-                    
+                    if (currentUserRole === 'athlete') {
+                        renderNameButtons();
+                        renderRatingButtons();
+                    }
+                    renderDashboard();
                 } catch (error) {
                     console.error('Error fetching data:', error);
-                    avgTile.textContent = 'Error';
                     loadingState.innerHTML = '<p class="text-red-500">Could not load data.</p>';
-                    nameButtonsContainer.innerHTML = '<p class="text-red-500 col-span-full">Could not load team members.</p>';
                 } finally {
                     loadingState.style.display = 'none';
                     dashboardContent.style.display = 'block';
                 }
             }
+            
+            function renderDashboard() {
+                const view = currentUserRole === 'admin' ? currentAdminView : 'Team';
+                const stats = appData.stats[view];
+                if (!stats) return;
 
-            function renderNameButtons(groupedMembers, submittedToday) {
-                nameButtonsContainer.innerHTML = ''; // Clear loading message
+                dashboardTitle.textContent = `${view} Culture - 7-Day Dashboard`;
+                avgTile.textContent = stats.sevenDayAverage > 0 ? stats.sevenDayAverage.toFixed(2) : 'N/A';
                 
-                const roles = Object.keys(groupedMembers).sort(); // Sort roles alphabetically
-                
-                roles.forEach(role => {
+                const labels = stats.dailyAverages.map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }));
+                const chartData = stats.dailyAverages.map(d => d.average);
+
+                const chartConfig = {
+                    type: 'line',
+                    data: { labels, datasets: [{ data: chartData, fill: true, borderColor: 'rgb(129, 140, 248)', backgroundColor: 'rgba(129, 140, 248, 0.2)', tension: 0.3, pointRadius: 5 }] },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, max: 5, ticks: { stepSize: 1, callback: (v) => RATING_MAP[v] || '', color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                };
+                if (cultureChart) cultureChart.destroy();
+                cultureChart = new Chart(chartCanvas, chartConfig);
+            }
+
+            // --- SUBMISSION UI RENDERING ---
+            function renderNameButtons() {
+                nameButtonsContainer.innerHTML = '';
+                Object.keys(appData.teamMembers).sort().forEach(role => {
                     const column = document.createElement('div');
                     column.className = 'space-y-3';
-
                     const title = document.createElement('h3');
                     title.className = 'text-lg font-semibold text-slate-400 border-b border-slate-700 pb-2';
                     title.textContent = role;
                     column.appendChild(title);
 
-                    groupedMembers[role].forEach(member => {
+                    appData.teamMembers[role].forEach(member => {
                         const button = document.createElement('button');
-                        button.textContent = member.PersonName;
                         button.dataset.name = member.PersonName;
-                        const hasSubmitted = submittedToday.includes(member.PersonName);
-                        
-                        const colorClass = roleColors[member.Role] || roleColors.default;
-                        button.className = `w-full text-left p-3 rounded-md font-semibold transition-all duration-150 ease-in-out ${colorClass}`;
-
+                        const hasSubmitted = appData.submittedToday.includes(member.PersonName);
+                        button.className = `w-full text-left p-3 rounded-md font-semibold transition-all text-white ${ROLE_COLORS[member.Role] || 'bg-gray-600'}`;
                         if (hasSubmitted) {
                             button.disabled = true;
                             button.classList.add('opacity-40', 'cursor-not-allowed');
                             button.innerHTML = `${member.PersonName} <span class="text-xs opacity-80">(Submitted)</span>`;
                         } else {
-                            button.addEventListener('click', () => handleNameSelection(member.PersonName));
+                            button.textContent = member.PersonName;
+                            button.addEventListener('click', () => handleSelection('name', member.PersonName));
                         }
                         column.appendChild(button);
                     });
@@ -165,89 +250,79 @@
                 });
             }
 
-            function handleNameSelection(name) {
-                selectedName = name;
+            function renderRatingButtons() {
+                ratingOptions.innerHTML = '';
+                Object.entries(RATING_MAP).forEach(([value, text]) => {
+                    const button = document.createElement('button');
+                    button.textContent = text;
+                    button.dataset.rating = value;
+                    button.className = 'w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer hover:bg-slate-700 transition-colors';
+                    button.addEventListener('click', () => handleSelection('rating', value));
+                    ratingOptions.appendChild(button);
+                });
+            }
+
+            function renderReasonButtons() {
+                reasonButtonsContainer.innerHTML = '';
+                const relevantReasons = appData.reasons.filter(r => r.rating_level == selected.rating);
+                relevantReasons.forEach(reason => {
+                    const button = document.createElement('button');
+                    button.textContent = reason.reason_text;
+                    button.dataset.reason = reason.reason_text;
+                    button.className = 'w-full text-center p-3 rounded-md border border-slate-600 cursor-pointer hover:bg-slate-700 transition-colors';
+                    button.addEventListener('click', () => handleSelection('reason', reason.reason_text));
+                    reasonButtonsContainer.appendChild(button);
+                });
+            }
+
+            // --- EVENT HANDLERS ---
+            function handleSelection(type, value) {
+                selected[type] = value;
                 
-                Array.from(nameButtonsContainer.querySelectorAll('button')).forEach(btn => {
-                    if (btn.dataset.name === name) {
+                if (type === 'name') {
+                    step2.classList.remove('hidden');
+                    step3.classList.add('hidden');
+                    cultureForm.classList.add('hidden');
+                    selected.rating = null; selected.reason = null; // Reset subsequent steps
+                    updateButtonStates(nameButtonsContainer, 'name', value);
+                } else if (type === 'rating') {
+                    step3.classList.remove('hidden');
+                    cultureForm.classList.add('hidden');
+                    selected.reason = null; // Reset reason
+                    renderReasonButtons();
+                    updateButtonStates(ratingOptions, 'rating', value);
+                } else if (type === 'reason') {
+                    cultureForm.classList.remove('hidden');
+                    updateButtonStates(reasonButtonsContainer, 'reason', value);
+                }
+            }
+
+            function updateButtonStates(container, key, value) {
+                container.querySelectorAll('button').forEach(btn => {
+                    if (btn.dataset[key] === value) {
                         btn.classList.add('ring-4', 'ring-indigo-400');
                     } else {
                         btn.classList.remove('ring-4', 'ring-indigo-400');
                     }
                 });
-
-                submissionStep2.classList.remove('hidden');
-                submitButtonName.textContent = name;
-                form.reset();
             }
 
-            function displayMetrics(data) {
-                const overallAvg = data.sevenDayAverage;
-                avgTile.textContent = overallAvg > 0 ? overallAvg.toFixed(2) : 'N/A';
+            viewToggleButtons.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    currentAdminView = e.target.dataset.view;
+                    viewToggleButtons.querySelectorAll('button').forEach(btn => {
+                        btn.classList.remove('bg-indigo-600');
+                        btn.classList.add('bg-slate-600');
+                    });
+                    e.target.classList.add('bg-indigo-600');
+                    e.target.classList.remove('bg-slate-600');
+                    renderDashboard();
+                }
+            });
 
-                const labels = data.dailyAverages.map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }));
-                const chartData = data.dailyAverages.map(d => d.average);
-
-                const chartConfig = {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Daily Average Culture Score',
-                            data: chartData,
-                            fill: true,
-                            borderColor: 'rgb(129, 140, 248)',
-                            backgroundColor: 'rgba(129, 140, 248, 0.2)',
-                            tension: 0.3,
-                            pointBackgroundColor: 'rgb(129, 140, 248)',
-                            pointRadius: 5,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: { 
-                            y: { 
-                                beginAtZero: true, 
-                                max: 5, 
-                                ticks: { 
-                                    stepSize: 1, 
-                                    callback: (v) => ratingMap[v] || '',
-                                    color: '#94a3b8' // slate-400
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: '#94a3b8' // slate-400
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                };
-
-                if (cultureChart) cultureChart.destroy();
-                cultureChart = new Chart(chartCanvas, chartConfig);
-            }
-
-            form.addEventListener('submit', async (e) => {
+            cultureForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (!selectedName) {
-                    showMessage('Please select your name first.', 'error');
-                    return;
-                }
-
-                const rating = new FormData(form).get('rating');
-                if (!rating) {
-                    showMessage('Please select a culture rating.', 'error');
-                    return;
-                }
-                
+                const submitBtn = cultureForm.querySelector('button');
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
 
@@ -255,50 +330,35 @@
                     const response = await fetch('/.netlify/functions/submit-rating', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: selectedName, rating: parseInt(rating, 10) })
+                        body: JSON.stringify(selected)
                     });
                     const result = await response.json();
 
                     if (response.ok) {
                         showMessage('Thank you for your submission!', 'success');
-                        submissionStep2.classList.add('hidden');
-                        const submittedButton = Array.from(nameButtonsContainer.querySelectorAll('button')).find(btn => btn.dataset.name === selectedName);
-                        if (submittedButton) {
-                            submittedButton.disabled = true;
-                            submittedButton.classList.add('opacity-40', 'cursor-not-allowed');
-                            submittedButton.innerHTML = `${selectedName} <span class="text-xs opacity-80">(Submitted)</span>`;
-                            submittedButton.classList.remove('ring-4', 'ring-indigo-400');
-                        }
+                        // Reset the UI
+                        step2.classList.add('hidden');
+                        step3.classList.add('hidden');
+                        cultureForm.classList.add('hidden');
                         setTimeout(fetchDataAndDisplay, 1500);
                     } else {
                         showMessage(result.message || 'An error occurred.', 'error');
                     }
                 } catch (error) {
-                    console.error('Submission error:', error);
                     showMessage('A network error occurred. Please try again.', 'error');
                 } finally {
                     submitBtn.disabled = false;
-                    // Restore button text after submission attempt
-                    submitButtonName.textContent = selectedName;
+                    submitBtn.textContent = 'Submit Response';
                 }
             });
 
             function showMessage(text, type) {
                 messageBox.textContent = text;
-                messageBox.className = 'mt-4 text-center p-3 rounded-md text-sm'; // Reset
-                if (type === 'success') {
-                    messageBox.classList.add('bg-green-500/20', 'text-green-300');
-                } else if (type === 'error') {
-                    messageBox.classList.add('bg-red-500/20', 'text-red-300');
-                }
-                setTimeout(() => {
-                    messageBox.textContent = '';
-                    messageBox.className = 'mt-4 text-center p-3 rounded-md text-sm';
-                }, 4000);
+                messageBox.className = 'text-center p-3 rounded-md text-sm';
+                if (type === 'success') messageBox.classList.add('bg-green-500/20', 'text-green-300');
+                else messageBox.classList.add('bg-red-500/20', 'text-red-300');
+                setTimeout(() => messageBox.className = 'text-center p-3 rounded-md text-sm', 4000);
             }
-
-            // --- INITIAL LOAD ---
-            fetchDataAndDisplay();
         });
     </script>
 </body>
